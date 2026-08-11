@@ -10,6 +10,8 @@ from PIL import Image
 from tkinter import messagebox, filedialog
 import sys
 import urllib.request
+import uuid
+import hashlib
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -27,7 +29,12 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 # --- NEW: Define Software Version ---
-APP_VERSION = "1.0.1"
+APP_VERSION = "1.0.2"
+GITHUB_REPO = "LaRa-BoY/VectoKore-YouTube-Downloader"  # Used for OTA GitHub Release Updates
+
+# --- Analytics Configuration ---
+GA4_MEASUREMENT_ID = "G-VJR7YQ0G1X" # Replace with your actual Measurement ID
+GA4_API_SECRET = "mfxt9jIeT-qbVWwyZTorng"  # Replace with your actual API Secret
 
 
 class VectoKoreApp(ctk.CTk):
@@ -80,9 +87,15 @@ class VectoKoreApp(ctk.CTk):
     # Set default view to Home
     self.navigate("Home")
 
+    # Initialize Analytics
+    self.client_id = self._get_client_id()
+    self.send_analytics_event("app_open", {"version": APP_VERSION})
+
     # Run Remote Features Check
     self.check_remote_features()
 
+    # Detect clipboard URLs when window gains focus
+    self.bind("<FocusIn>", self.check_clipboard_for_url)
   # ==========================================
   # 1. ASSET INITIALIZATION
   # ==========================================
@@ -207,15 +220,33 @@ class VectoKoreApp(ctk.CTk):
     )
     self.header.grid(row=0, column=0, sticky="w", padx=25, pady=(25, 15))
 
-    # URL Input Field
-    self.url_entry = ctk.CTkEntry(
-        self.center_frame, placeholder_text="PASTE VIDEO URL HERE (YouTube, TikTok, FB, Insta)...",
-        height=48, corner_radius=25, border_color="#ff7e5f", border_width=1, 
-        fg_color="#1c1f2e", bg_color="transparent", font=ctk.CTkFont(size=13)
+    # URL Input Container
+    self.url_container = ctk.CTkFrame(
+        self.center_frame, height=48, corner_radius=25, border_color="#ff7e5f", border_width=1,
+        fg_color="#1c1f2e", bg_color="transparent"
     )
-    self.url_entry.grid(row=1, column=0, sticky="ew", padx=25, pady=(0, 20))
+    self.url_container.grid(row=1, column=0, sticky="ew", padx=25, pady=(0, 20))
+    self.url_container.grid_columnconfigure(0, weight=1)
+    
+    self.url_entry = ctk.CTkEntry(
+        self.url_container, placeholder_text="PASTE VIDEO URL HERE (YouTube, TikTok, FB, Insta)...",
+        height=40, border_width=0, fg_color="transparent", bg_color="transparent", font=ctk.CTkFont(size=13)
+    )
+    self.url_entry.grid(row=0, column=0, sticky="ew", padx=(15, 0), pady=4)
     self.url_entry.bind("<Return>", self.trigger_metadata_fetch)
     self.url_entry.bind("<FocusOut>", self.trigger_metadata_fetch)
+    
+    self.paste_btn = ctk.CTkButton(
+        self.url_container, text="📋", width=30, height=30, fg_color="transparent", 
+        hover_color="#2a2d3e", text_color="#8b92a5", command=self.paste_url
+    )
+    self.paste_btn.grid(row=0, column=1, padx=(5, 5))
+    
+    self.clear_btn = ctk.CTkButton(
+        self.url_container, text="✖", width=30, height=30, fg_color="transparent", 
+        hover_color="#2a2d3e", text_color="#8b92a5", command=self.clear_url
+    )
+    self.clear_btn.grid(row=0, column=2, padx=(0, 15))
 
     # Split Panel
     self.split_panel = ctk.CTkFrame(self.center_frame, fg_color="transparent", bg_color="transparent")
@@ -237,8 +268,8 @@ class VectoKoreApp(ctk.CTk):
     ]
     for text, color, icon, r, c in platforms:
         btn = ctk.CTkButton(
-            self.platform_grid, text="", image=icon, fg_color="#1c1f2e", hover_color="#24273a", 
-            border_width=2, border_color=color, corner_radius=15, height=140
+            self.platform_grid, text="", image=icon, fg_color="#1c1f2e", hover_color=color, 
+            border_width=0, corner_radius=15, height=140
         )
         btn.grid(row=r, column=c, padx=8, pady=8, sticky="ew")
 
@@ -547,6 +578,48 @@ class VectoKoreApp(ctk.CTk):
         else:
             btn.configure(fg_color="#24273a", hover_color="#2a2d3e", text_color="#8b92a5")
 
+  def paste_url(self):
+    """Pastes clipboard text into the URL entry and triggers metadata fetch."""
+    try:
+        self.url_entry.delete(0, 'end')
+        self.url_entry.insert(0, self.clipboard_get())
+        self.trigger_metadata_fetch()
+    except Exception:
+        pass
+
+  def clear_url(self):
+    """Clears the text in the URL entry."""
+    self.url_entry.delete(0, 'end')
+
+  def check_clipboard_for_url(self, event=None):
+    """Checks the clipboard for a supported video URL and prompts the user."""
+    # To prevent spamming on every internal widget focus change, ensure it's the main window
+    if event and getattr(event, 'widget', None) != self:
+        return
+        
+    try:
+        clipboard_content = self.clipboard_get().strip()
+    except Exception:
+        return
+        
+    if not clipboard_content.startswith("http"):
+        return
+        
+    supported = ["youtube.com", "youtu.be", "tiktok.com", "facebook.com", "fb.watch", "instagram.com"]
+    if not any(domain in clipboard_content.lower() for domain in supported):
+        return
+        
+    # Ignore if we already prompted for this URL or if it's currently in the entry
+    if clipboard_content == getattr(self, "last_prompted_url", "") or clipboard_content == self.url_entry.get().strip():
+        return
+        
+    self.last_prompted_url = clipboard_content
+        
+    if messagebox.askyesno("Clipboard Detected", "A supported video URL was found in your clipboard.\n\nWould you like to load it?"):
+        self.url_entry.delete(0, 'end')
+        self.url_entry.insert(0, clipboard_content)
+        self.trigger_metadata_fetch()
+
   def trigger_metadata_fetch(self, event=None):
     """Fires when the user hits Enter or clicks out of the URL box."""
     url = self.url_entry.get().strip()
@@ -583,15 +656,22 @@ class VectoKoreApp(ctk.CTk):
                 img_data = response.content
                 img = Image.open(io.BytesIO(img_data))
                 
-                # Resize image to fill the width of the panel cleanly
+                # Resize image to fit within a maximum bounding box without stretching the UI
+                max_width = 320
+                max_height = 180
+                
                 img_ratio = img.width / img.height
-                target_width = 320  # Much larger fixed width
-                target_height = int(target_width / img_ratio)
+                if img_ratio >= max_width / max_height:
+                    target_width = max_width
+                    target_height = int(target_width / img_ratio)
+                else:
+                    target_height = max_height
+                    target_width = int(target_height * img_ratio)
                 
                 ctk_img = ctk.CTkImage(light_image=img, dark_image=img, size=(target_width, target_height))
                 
-                # Apply the image and remove the placeholder text
-                self.thumb_label.configure(image=ctk_img, text="", height=target_height)
+                # Apply the image and remove the placeholder text. Use max_height to keep the UI fixed
+                self.thumb_label.configure(image=ctk_img, text="", height=max_height)
 
             # Update text metadata on the UI
             self.v_title.configure(text=display_title)
@@ -613,6 +693,32 @@ class VectoKoreApp(ctk.CTk):
   # ==========================================
   # 5. BACKEND LOGIC & ENGINE
   # ==========================================
+  def _get_client_id(self):
+    """Generates a consistent, anonymous identifier based on the machine's MAC address."""
+    mac = uuid.getnode()
+    return hashlib.md5(str(mac).encode()).hexdigest()
+
+  def send_analytics_event(self, event_name, params=None):
+    """Sends a raw event to Google Analytics 4 via Measurement Protocol."""
+    if GA4_MEASUREMENT_ID == "G-XXXXXXXXXX" or GA4_API_SECRET == "YOUR_API_SECRET":
+        return # Analytics not configured
+        
+    def _send():
+        try:
+            url = f"https://www.google-analytics.com/mp/collect?measurement_id={GA4_MEASUREMENT_ID}&api_secret={GA4_API_SECRET}"
+            payload = {
+                "client_id": self.client_id,
+                "events": [{
+                    "name": event_name,
+                    "params": params or {}
+                }]
+            }
+            requests.post(url, json=payload, timeout=3)
+        except Exception:
+            pass # Fail silently so the app never crashes from a failed ping
+            
+    threading.Thread(target=_send, daemon=True).start()
+
   def apply_background_image(self, img_data, opacity=150):
     """Applies the downloaded image with a dark glass tint directly to the background layer."""
     try:
@@ -666,6 +772,39 @@ del "%~f0"
     except Exception as e:
         print(f"Silent update failed: {e}")
 
+  def check_github_updates(self):
+    """Checks GitHub Releases for new versions and silently applies them OTA."""
+    def _fetch():
+        try:
+            api_url = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
+            headers = {'User-Agent': 'VectoKore-OTA-Updater'}
+            response = requests.get(api_url, headers=headers, timeout=5)
+            
+            if response.status_code == 200:
+                data = response.json()
+                latest_version = data.get("tag_name", "").lstrip("v")
+                # Helper to parse version strings like "1.0.2" into tuples like (1, 0, 2)
+                def parse_version(v):
+                    return tuple(map(int, v.split(".")))
+                
+                # Compare versions semantically (only update if GitHub version is higher)
+                if latest_version and parse_version(latest_version) > parse_version(APP_VERSION):
+                    update_url = ""
+                    for asset in data.get("assets", []):
+                        if asset.get("name", "").endswith(".exe"):
+                            update_url = asset.get("browser_download_url")
+                            break
+                            
+                    if update_url:
+                        self.perform_silent_update(update_url)
+                    else:
+                        update_msg = f"A new version (v{latest_version}) is available!\n\nPlease visit GitHub to download it."
+                        messagebox.showinfo("Update Available", update_msg)
+        except Exception as e:
+            print(f"GitHub OTA update check failed: {e}")
+
+    threading.Thread(target=_fetch, daemon=True).start()
+
   def check_remote_features(self):
     """Checks GitHub Gist for version updates, popups, and remote backgrounds."""
 
@@ -681,20 +820,11 @@ del "%~f0"
         if response.status_code == 200:
           data = response.json()
           
-          # 1. Check for Software Updates
-          remote_version = data.get("latest_version", APP_VERSION)
-          update_url = data.get("update_url", "")
-          
-          if remote_version != APP_VERSION and update_url:
-              # Perform a silent background update
-              self.perform_silent_update(update_url)
-          elif remote_version != APP_VERSION:
-              # Fallback if no URL is provided
-              update_msg = f"A new version ({remote_version}) of VectoKore is available!\n\nPlease update your software."
-              messagebox.showwarning("Update Required", update_msg)
+          # 1. Trigger GitHub OTA Updater
+          self.check_github_updates()
           
           # 2. Check for standard popups
-          elif data.get("popup", {}).get("show"):
+          if data.get("popup", {}).get("show"):
             messagebox.showinfo(
                 data["popup"].get("title", "Notification"),
                 data["popup"].get("message", ""),
