@@ -47,8 +47,8 @@
 
 ## 📥 Installation
 
-1. Go to the [Releases](https://github.com/your-username/your-repository/releases) section.
-2. Download the latest installer file: `VectoKore_Setup_v1.0.9.exe`.
+1. Go to the [Releases](https://github.com/LaRa-BoY/VectoKore-YouTube-Downloader/releases) section.
+2. Download the latest installer file: `VectoKore_Setup_v1.1.0.exe`.
 3. Run the installer and follow the setup wizard.
 4. Launch **VectoKore YouTube Downloader** from your Desktop or Start Menu.
 
@@ -56,7 +56,7 @@
 
 ## ⚙️ Technical Details
 
-* **Current Version:** 1.0.9
+* **Current Version:** 1.1.0
 * **License:** Freeware / Open Source
 * **Core Framework:** Python / CustomTkinter
 * **Extraction Engine:** `yt-dlp` & bundled `ffmpeg`
