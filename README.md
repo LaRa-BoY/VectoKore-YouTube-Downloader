@@ -1,10 +1,14 @@
-# VectoKore YouTube Downloader 🚀
+# VectoKore Media Downloader 🚀
 
-**VectoKore YouTube Downloader** is a fast, lightweight, and feature-rich desktop media extraction suite for Windows. Built with a modern CustomTkinter interface, it empowers users to seamlessly fetch high-definition video, complete playlists, and high-bitrate audio from top media platforms including YouTube, TikTok, Facebook, and Instagram.
+**VectoKore Media Downloader** is a fast, lightweight, and feature-rich desktop media extraction suite for Windows. Rebuilt from the ground up with a lightning-fast native C# and .NET architecture, it empowers users to seamlessly fetch high-definition video, complete playlists, and high-bitrate audio from virtually any website across the web—including YouTube, TikTok, Facebook, Instagram, and thousands of other streaming, hosting, and adult video sites.
 
 ---
 
 ## ✨ Key Features
+
+### 🌐 Universal Multi-Platform Extraction
+* **Download Anything:** Paste a link from almost any video source on the web, and the engine will intelligently detect and queue the media streams.
+* **Ultra-Lightweight Updates:** Thanks to the new native architecture, future software update files have been dramatically reduced to **under 10 MB**, ensuring lightning-fast updates over any connection.
 
 ### 🎥 High-Definition Video Downloads
 * Download videos in multiple resolutions: **360p, 480p, 720p, 1080p (Full HD), 2K, and 4K**.
@@ -14,10 +18,10 @@
 ### 🎵 Studio-Quality Audio Conversion & Metadata
 * Convert media directly to **MP3, M4A, or WAV** audio formats.
 * Selectable bitrates from standard **128kbps** up to studio-quality **320kbps**.
-* **Automated ID3 Tagging:** Embeds track title, artist name, release date, and album artwork directly into downloaded audio files using `mutagen`.
+* **Automated ID3 Tagging:** Embeds track title, artist name, release date, and album artwork directly into downloaded audio files.
 
 ### ▶️ Bulk Playlist Extraction
-* Full YouTube playlist downloading support.
+* Full playlist downloading support.
 * Queue and manage multiple concurrent downloads with user-defined concurrency limits.
 
 ### 🗂️ Built-in Local Media Library
@@ -48,17 +52,17 @@
 ## 📥 Installation
 
 1. Go to the [Releases](https://github.com/LaRa-BoY/VectoKore-YouTube-Downloader/releases) section.
-2. Download the latest installer file: `VectoKore_Setup_v1.1.0.exe`.
+2. Download the latest installer file: `VectoKore_Setup_v1.2.0.exe`.
 3. Run the installer and follow the setup wizard.
-4. Launch **VectoKore YouTube Downloader** from your Desktop or Start Menu.
+4. Launch **VectoKore Media Downloader** from your Desktop or Start Menu.
 
 ---
 
 ## ⚙️ Technical Details
 
-* **Current Version:** 1.1.0
+* **Current Version:** 1.2.0
 * **License:** Freeware / Open Source
-* **Core Framework:** Python / CustomTkinter
+* **Core Framework:** C# / .NET
 * **Extraction Engine:** `yt-dlp` & bundled `ffmpeg`
 * **Developer:** VectoKore Developers
 
