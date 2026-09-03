@@ -2,6 +2,8 @@
 
 **VectoKore YouTube Downloader** is a fast, lightweight, and feature-rich desktop media extraction suite for Windows. Rebuilt from the ground up with a lightning-fast native C# and .NET architecture, it empowers users to seamlessly fetch high-definition video, complete playlists, and high-bitrate audio from virtually any website across the web—including YouTube, TikTok, Facebook, Instagram, and thousands of other streaming, hosting, and adult video sites.
 
+<img width="1133" height="739" alt="image" src="https://github.com/user-attachments/assets/a788df0f-b03c-4bfb-83ee-4f585a3370ab" />
+
 ---
 
 ## ✨ Key Features
@@ -34,6 +36,9 @@
 * **Network Throttling:** Built-in download speed limiter to conserve network bandwidth.
 * **Smart Clipboard Listener:** Automatically detects copied media URLs upon focusing the app.
 * **Customizable UI:** Full support for Dark and Light themes.
+
+<img width="1133" height="739" alt="image" src="https://github.com/user-attachments/assets/e066a36c-1381-4a13-b33f-27154967b9cd" />
+
 
 ---
 
