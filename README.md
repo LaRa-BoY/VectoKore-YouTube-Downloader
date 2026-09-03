@@ -1,6 +1,6 @@
-# VectoKore Media Downloader 🚀
+# VectoKore YouTube Downloader 🚀
 
-**VectoKore Media Downloader** is a fast, lightweight, and feature-rich desktop media extraction suite for Windows. Rebuilt from the ground up with a lightning-fast native C# and .NET architecture, it empowers users to seamlessly fetch high-definition video, complete playlists, and high-bitrate audio from virtually any website across the web—including YouTube, TikTok, Facebook, Instagram, and thousands of other streaming, hosting, and adult video sites.
+**VectoKore YouTube Downloader** is a fast, lightweight, and feature-rich desktop media extraction suite for Windows. Rebuilt from the ground up with a lightning-fast native C# and .NET architecture, it empowers users to seamlessly fetch high-definition video, complete playlists, and high-bitrate audio from virtually any website across the web—including YouTube, TikTok, Facebook, Instagram, and thousands of other streaming, hosting, and adult video sites.
 
 ---
 
@@ -54,7 +54,7 @@
 1. Go to the [Releases](https://github.com/LaRa-BoY/VectoKore-YouTube-Downloader/releases) section.
 2. Download the latest installer file: `VectoKore_Setup_v1.2.2.exe`.
 3. Run the installer and follow the setup wizard.
-4. Launch **VectoKore Media Downloader** from your Desktop or Start Menu.
+4. Launch **VectoKore YouTube Downloader** from your Desktop or Start Menu.
 
 ---
 
